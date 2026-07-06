@@ -6,7 +6,7 @@ An online music player for J2ME (Java ME) mobile devices — CLDC 1.1 / MIDP 2.0
 
 ## Features
 
-- **Multi-source streaming** — NCT, SoundCloud, YouTube Music, Spotify
+- **Multi-source streaming**
 - **Discovery** — browse by category and playlist, search songs / artists / albums
 - **Playback** — seek, resume position, sleep timer
 - **Library** — favorites, playlists, recent history
