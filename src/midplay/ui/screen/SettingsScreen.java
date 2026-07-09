@@ -27,7 +27,6 @@ public final class SettingsScreen extends BaseForm {
   private ChoiceGroup languageGroup;
   private ChoiceGroup themeModeGroup;
   private ChoiceGroup themeColorGroup;
-  private ChoiceGroup serviceGroup;
   private ChoiceGroup qualityGroup;
   private ChoiceGroup togglesGroup;
   private ChoiceGroup playerMethodGroup;
@@ -38,7 +37,6 @@ public final class SettingsScreen extends BaseForm {
 
   private String currentLanguage;
   private String currentThemeMode;
-  private String currentService;
   private String currentQuality;
   private int currentAutoUpdate;
   private int currentBlackberryWifi;
@@ -88,10 +86,6 @@ public final class SettingsScreen extends BaseForm {
     if (currentColorIndex != themeColorGroup.getSelectedIndex()) {
       return true;
     }
-    if (!currentService.equals(
-        getSelected(serviceGroup, Configuration.ALL_SERVICES, Configuration.SERVICE_NCT))) {
-      return true;
-    }
     if (!currentQuality.equals(
         getSelected(qualityGroup, Configuration.ALL_QUALITIES, Configuration.QUALITY_128))) {
       return true;
@@ -138,7 +132,6 @@ public final class SettingsScreen extends BaseForm {
     themeModeGroup =
         createChoiceGroup(
             "settings.theme_mode", Configuration.ALL_THEME_MODES, "settings.theme_mode_options.");
-    serviceGroup = createChoiceGroup("settings.service", Configuration.ALL_SERVICES, null);
     qualityGroup = createChoiceGroup("settings.audio_quality", Configuration.ALL_QUALITIES, null);
     playerMethodGroup =
         createChoiceGroup(
@@ -163,7 +156,6 @@ public final class SettingsScreen extends BaseForm {
     append(languageGroup);
     append(themeModeGroup);
     append(themeColorGroup);
-    append(serviceGroup);
     append(qualityGroup);
     append(playerMethodGroup);
     append(togglesGroup);
@@ -183,7 +175,6 @@ public final class SettingsScreen extends BaseForm {
   private void loadSettings() {
     currentLanguage = settingsManager.getCurrentLanguage();
     currentThemeMode = settingsManager.getCurrentThemeMode();
-    currentService = settingsManager.getCurrentService();
     currentQuality = settingsManager.getCurrentQuality();
     currentAutoUpdate = settingsManager.getCurrentAutoUpdate();
     currentBlackberryWifi = settingsManager.getCurrentBlackberryWifi();
@@ -197,7 +188,6 @@ public final class SettingsScreen extends BaseForm {
         themeColorGroup,
         Configuration.THEME_COLOR_NAMES,
         Configuration.THEME_COLOR_NAMES[currentColorIndex]);
-    selectChoice(serviceGroup, Configuration.ALL_SERVICES, currentService);
     selectChoice(qualityGroup, Configuration.ALL_QUALITIES, currentQuality);
     selectChoice(playerMethodGroup, Configuration.ALL_PLAYER_METHODS, currentPlayerMethod);
     togglesGroup.setSelectedIndex(
@@ -226,8 +216,6 @@ public final class SettingsScreen extends BaseForm {
       String selectedLang = getSelected(languageGroup, availableLanguages, "en");
       String selectedThemeMode =
           getSelected(themeModeGroup, Configuration.ALL_THEME_MODES, Configuration.THEME_LIGHT);
-      String selectedService =
-          getSelected(serviceGroup, Configuration.ALL_SERVICES, Configuration.SERVICE_NCT);
       String selectedQuality =
           getSelected(qualityGroup, Configuration.ALL_QUALITIES, Configuration.QUALITY_128);
       String selectedPlayerMethod =
@@ -260,10 +248,6 @@ public final class SettingsScreen extends BaseForm {
       }
       boolean hasColorChange = currentColorIndex != selectedThemeColor;
       boolean hasModeChange = !currentThemeMode.equals(selectedThemeMode);
-      if (!currentService.equals(selectedService)) {
-        hasChanges = true;
-        settingsManager.saveService(selectedService);
-      }
       if (!currentQuality.equals(selectedQuality)) {
         hasChanges = true;
         settingsManager.saveQuality(selectedQuality);

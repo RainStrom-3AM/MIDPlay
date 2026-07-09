@@ -23,7 +23,8 @@ public class BinaryImageLoadOperation extends NetworkOperation {
       listener.onImageLoadError(new Exception("Invalid image URL"));
       return;
     }
-    String url = targetSize > 0 ? URLProvider.getSizedImage(imageUrl, targetSize) : imageUrl;
+    // ponytail: mock mode — no server-side resize; use raw url (empty in mock -> short-circuits above).
+    String url = imageUrl;
     byte[] data = fetchBytes(url);
     if (data != null) {
       onBinaryResponse(data);
