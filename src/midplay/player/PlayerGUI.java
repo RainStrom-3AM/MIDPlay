@@ -22,11 +22,12 @@ public class PlayerGUI implements PlayerListener {
   private static final int VOLUME_STEP = 10;
 
   /**
-   * TEST FLAG: false = do not pin the player's VolumeControl at creation, so loudness follows the
-   * device's own media volume (hardware rocker) instead of the stored in-app level. Used to check
-   * on-device whether the phone's volume affects MMAPI playback when the app stays out of the way.
+   * Set to true once the user changes the volume inside the app. The player then pins that level
+   * for the rest of the session (survives track changes and seeks). While it stays false the
+   * player's VolumeControl is never touched, so loudness follows the device's own media volume —
+   * this is what makes the hardware volume rocker work like in the stock music player.
    */
-  public static final boolean APPLY_VOLUME_ON_CREATE = true;
+  private volatile boolean volumeOverrideActive;
 
   private static final int MAX_PENDING_TRACK_STEPS = 20;
   private static final long MEDIA_SAMPLE_WINDOW_MS = 1200L;
@@ -313,6 +314,7 @@ public class PlayerGUI implements PlayerListener {
       volumeLevel = Math.max(0, volumeLevel - VOLUME_STEP);
     }
     vc.setLevel(volumeLevel);
+    volumeOverrideActive = true;
     parent.showVolumeAlert();
   }
 
@@ -327,6 +329,12 @@ public class PlayerGUI implements PlayerListener {
     }
     volumeLevel = Math.max(0, Math.min(Configuration.PLAYER_MAX_VOLUME, level));
     vc.setLevel(volumeLevel);
+    volumeOverrideActive = true;
+  }
+
+  /** True once the user has changed volume in-app this session (the app pins the level from then on). */
+  public boolean isVolumeOverrideActive() {
+    return volumeOverrideActive;
   }
 
   /**

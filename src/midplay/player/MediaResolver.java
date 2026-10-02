@@ -170,7 +170,7 @@ public class MediaResolver implements MediaHttpClient.ResolveContext {
     }
 
     VolumeControl vc = gui.getVolumeControl(pendingPlayer);
-    if (vc != null && PlayerGUI.APPLY_VOLUME_ON_CREATE) {
+    if (vc != null && gui.isVolumeOverrideActive()) {
       vc.setLevel(gui.getVolumeLevel());
     }
     EqualizerEngine.applyFromSettings();

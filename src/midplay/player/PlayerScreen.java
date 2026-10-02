@@ -30,9 +30,9 @@ public final class PlayerScreen extends Canvas
   private static final int KEY_VOLUME_UP = 0;
   private static final int KEY_VOLUME_DOWN = 0;
 
-  // Temporary diagnostics: show raw keyCode/keyName of unknown keys on screen.
-  // Set to false once the volume key codes are captured.
-  private static final boolean KEY_DEBUG = false;
+  // Temporary diagnostics: show raw keyCode/keyName for unmapped negative keys (keypad and
+  // QWERTY characters are never shown). Set to false once the volume key codes are confirmed.
+  private static final boolean KEY_DEBUG = true;
 
   static final int VOLUME_ALERT_MARGIN = 20;
   static final int VOLUME_ALERT_HEIGHT = 100;
@@ -426,7 +426,11 @@ public final class PlayerScreen extends Canvas
         next();
         break;
       default:
-        showKeyDebug(code);
+        // Only surface diagnostics for unmapped *negative* codes: keypad/QWERTY characters
+        // (positive) are intentionally ignored, so no noise while typing on the E71.
+        if (code < 0) {
+          showKeyDebug(code);
+        }
     }
   }
 
