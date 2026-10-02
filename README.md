@@ -9,6 +9,7 @@ A demo music player for J2ME (Java ME) mobile devices — CLDC 1.1 / MIDP 2.0. S
 - **Mock/demo playback** — bundled sample data, no live streaming
 - **Discovery** — browse by category and playlist, search songs / artists / albums
 - **Playback** — seek, resume position, sleep timer
+- **Volume** — in-app volume bar (D-pad / touch / menu), plus hardware volume-rocker support where the device forwards the keys (experimental, device-dependent)
 - **Library** — favorites, playlists, recent history
 - **Localization** — English, Vietnamese, Turkish, Polish, Hebrew
 
@@ -18,16 +19,24 @@ A demo music player for J2ME (Java ME) mobile devices — CLDC 1.1 / MIDP 2.0. S
 
 ## Install
 
-1. Download the latest `.jar` from the [Releases](https://github.com/phd051199/MIDPlay/releases) page
+1. Download the latest `.jar` from the [Releases](https://github.com/RainStrom-3AM/MIDPlay/releases) page
 2. Install on a J2ME-compatible device (or load in an emulator such as KEmulator)
 
 ## Build
+
+macOS / Linux, or Windows via Git Bash:
 
 ```bash
 ./build.sh
 ```
 
-Requires **JDK 8** (the last toolchain emitting CLDC-compatible bytecode). Output: `dist/MIDPlay.jar` + `dist/MIDPlay.jad`. See `build.sh` for the full pipeline (compile → package → ProGuard → JAD).
+Requires **JDK 8** (the last toolchain emitting CLDC-compatible bytecode). On Windows install it once with winget, then run `./build.sh` from Git Bash:
+
+```bash
+winget install EclipseAdoptium.Temurin.8.JDK
+```
+
+Output: `dist/MIDPlay.jar` + `dist/MIDPlay.jad`. See `build.sh` for the full pipeline (compile → package → ProGuard → JAD).
 
 ## Tech Stack
 
