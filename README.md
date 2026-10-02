@@ -9,7 +9,7 @@ A demo music player for J2ME (Java ME) mobile devices — CLDC 1.1 / MIDP 2.0. S
 - **Mock/demo playback** — bundled sample data, no live streaming
 - **Discovery** — browse by category and playlist, search songs / artists / albums
 - **Playback** — seek, resume position, sleep timer
-- **Volume** — in-app volume bar (D-pad / touch / menu), plus hardware volume-rocker support where the device forwards the keys (experimental, device-dependent)
+- **Volume** — follows the phone's own media volume, so the **hardware volume rocker works like in the stock music player**; an in-app volume bar (D-pad / touch / menu) is kept as a fallback and takes over for the session once used
 - **Library** — favorites, playlists, recent history
 - **Localization** — English, Vietnamese, Turkish, Polish, Hebrew
 
