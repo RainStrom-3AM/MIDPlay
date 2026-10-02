@@ -338,6 +338,36 @@ public class PlayerGUI implements PlayerListener {
   }
 
   /**
+   * Best-effort: mirror the player's reported volume level into the displayed value while the app
+   * has not pinned it. On devices where VolumeControl.getLevel() reflects the hardware volume,
+   * the on-screen volume bar then follows the hardware rocker presses. Readings of 0 are ignored
+   * — implementations use 0 as a "never set" placeholder and stepping up from it would silence
+   * playback.
+   */
+  void syncVolumeFromDevice() {
+    if (volumeOverrideActive) {
+      return;
+    }
+    Player currentPlayer;
+    synchronized (this) {
+      currentPlayer = player;
+    }
+    if (currentPlayer == null) {
+      return;
+    }
+    VolumeControl vc = getVolumeControl(currentPlayer);
+    if (vc == null) {
+      return;
+    }
+    int level = vc.getLevel();
+    if (level <= 0 || level > Configuration.PLAYER_MAX_VOLUME || level == volumeLevel) {
+      return;
+    }
+    volumeLevel = level;
+    parent.updateDisplayAsync();
+  }
+
+  /**
    * Keeps the in-app volume state in sync when the device reports a level change (some phones
    * fire this while the hardware volume keys adjust the active player). Only the stored level and
    * the UI are updated — never shown as an alert, so player creation re-applying the level does
@@ -1239,6 +1269,10 @@ public class PlayerGUI implements PlayerListener {
         displayTask =
             new TimerTask() {
               public void run() {
+                try {
+                  syncVolumeFromDevice();
+                } catch (Throwable t) {
+                }
                 try {
                   parent.onRepaintTick();
                 } catch (Throwable t) {
