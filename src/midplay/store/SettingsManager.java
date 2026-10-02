@@ -12,6 +12,7 @@ public class SettingsManager {
   private static final int SETTINGS_ID = 1;
   private static SettingsManager instance;
   private static String currentLanguage;
+  private static String currentService;
   private static String currentQuality;
   private static String currentSearchType;
   private static int currentAutoUpdate;
@@ -106,6 +107,7 @@ public class SettingsManager {
     JSONObject settings = settings();
     setCurrentLanguage(settings.getString("language", "en"));
     setCurrentThemeMode(settings.getString("themeMode", Configuration.THEME_LIGHT));
+    currentService = settings.getString("service", Configuration.SERVICE_NCT);
     currentQuality = settings.getString("quality", Configuration.QUALITY_128);
     currentSearchType = settings.getString("searchType", Configuration.SEARCH_PLAYLIST);
     currentAutoUpdate = settings.getInt("autoUpdate", Configuration.AUTO_UPDATE_ENABLED);
@@ -133,6 +135,7 @@ public class SettingsManager {
   private JSONObject createDefaultSettings() {
     JSONObject settings = new JSONObject();
     settings.put("language", "en");
+    settings.put("service", Configuration.SERVICE_NCT);
     settings.put("quality", Configuration.QUALITY_128);
     settings.put("repeatMode", Configuration.PLAYER_REPEAT_ALL);
     settings.put("shuffleMode", Configuration.PLAYER_SHUFFLE_OFF);
@@ -195,6 +198,11 @@ public class SettingsManager {
   public void saveTheme(String mode) throws RecordStoreException {
     saveSetting("themeMode", mode);
     setCurrentThemeMode(mode);
+  }
+
+  public void saveService(String serviceCode) throws RecordStoreException {
+    saveSetting("service", serviceCode);
+    currentService = serviceCode;
   }
 
   public void saveQuality(String qualityCode) throws RecordStoreException {
@@ -302,6 +310,10 @@ public class SettingsManager {
     currentThemeMode = mode;
     Theme.setDark(Configuration.THEME_DARK.equals(mode));
     loadAndApplyThemeColors();
+  }
+
+  public String getCurrentService() {
+    return currentService;
   }
 
   public String getCurrentQuality() {

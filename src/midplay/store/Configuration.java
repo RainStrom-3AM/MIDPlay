@@ -26,6 +26,14 @@ public class Configuration {
   public static final String MENU_RECENT = "menu.recent";
   public static final String MENU_EQUALIZER = "menu.equalizer";
 
+  public static final String SERVICE_NCT = "NCT";
+  public static final String SERVICE_SOUNDCLOUD = "SoundCloud";
+  public static final String SERVICE_YTMUSIC = "YTMusic";
+  public static final String SERVICE_SPOTIFY = "Spotify";
+  public static final String[] ALL_SERVICES = {
+    SERVICE_NCT, SERVICE_SOUNDCLOUD, SERVICE_YTMUSIC, SERVICE_SPOTIFY
+  };
+
   public static final String THEME_LIGHT = "light";
   public static final String THEME_DARK = "dark";
   public static final String[] ALL_THEME_MODES = {THEME_LIGHT, THEME_DARK};
