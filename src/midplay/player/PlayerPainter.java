@@ -170,8 +170,24 @@ public final class PlayerPainter {
       if (screen.volumeAlertShowing) {
         paintVolumeAlert(g);
       }
+
+      if (screen.keyDebugText != null) {
+        paintKeyDebug(g);
+      }
     } catch (Throwable e) {
     }
+  }
+
+  private void paintKeyDebug(Graphics g) {
+    Font font = screen.defaultFont;
+    if (font == null || screen.displayWidth <= 0) {
+      return;
+    }
+    g.setFont(font);
+    g.setColor(Theme.getSurfaceColor());
+    g.fillRect(0, 0, screen.displayWidth, font.getHeight() + 4);
+    g.setColor(Theme.getPrimaryColor());
+    g.drawString(screen.keyDebugText, 3, 2, ANCHOR_LEFT_TOP);
   }
 
   private void drawTrackText(

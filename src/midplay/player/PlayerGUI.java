@@ -20,6 +20,14 @@ import midplay.util.Utils;
 public class PlayerGUI implements PlayerListener {
   private static final int TIMER_INTERVAL = 1000;
   private static final int VOLUME_STEP = 10;
+
+  /**
+   * TEST FLAG: false = do not pin the player's VolumeControl at creation, so loudness follows the
+   * device's own media volume (hardware rocker) instead of the stored in-app level. Used to check
+   * on-device whether the phone's volume affects MMAPI playback when the app stays out of the way.
+   */
+  public static final boolean APPLY_VOLUME_ON_CREATE = true;
+
   private static final int MAX_PENDING_TRACK_STEPS = 20;
   private static final long MEDIA_SAMPLE_WINDOW_MS = 1200L;
 
@@ -319,6 +327,34 @@ public class PlayerGUI implements PlayerListener {
     }
     volumeLevel = Math.max(0, Math.min(Configuration.PLAYER_MAX_VOLUME, level));
     vc.setLevel(volumeLevel);
+  }
+
+  /**
+   * Keeps the in-app volume state in sync when the device reports a level change (some phones
+   * fire this while the hardware volume keys adjust the active player). Only the stored level and
+   * the UI are updated — never shown as an alert, so player creation re-applying the level does
+   * not pop the overlay up on every track.
+   */
+  private void onVolumeChanged(Object eventData) {
+    int level;
+    if (eventData instanceof Integer) {
+      level = ((Integer) eventData).intValue();
+    } else {
+      Player currentPlayer;
+      synchronized (this) {
+        currentPlayer = player;
+      }
+      VolumeControl vc = getVolumeControl(currentPlayer);
+      if (vc == null) {
+        return;
+      }
+      level = vc.getLevel();
+    }
+    level = Math.max(0, Math.min(Configuration.PLAYER_MAX_VOLUME, level));
+    if (level != volumeLevel) {
+      volumeLevel = level;
+      parent.updateDisplayAsync();
+    }
   }
 
   public int getVolumeLevel() {
@@ -716,6 +752,8 @@ public class PlayerGUI implements PlayerListener {
         parent.updateDisplayAsync();
       } else if (PlayerListener.DURATION_UPDATED.equals(event)) {
         parent.updateDisplayAsync();
+      } else if (PlayerListener.VOLUME_CHANGED.equals(event)) {
+        onVolumeChanged(eventData);
       }
     } catch (Exception e) {
       e.printStackTrace();

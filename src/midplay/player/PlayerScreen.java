@@ -25,6 +25,15 @@ public final class PlayerScreen extends Canvas
   private static final int KEY_MEDIA_PREVIOUS = -21;
   private static final int KEY_MEDIA_NEXT = -22;
 
+  // Hardware volume rocker key codes — device-specific, 0 = not yet discovered.
+  // Capture them with the KEY_DEBUG overlay on the target phone, then fill in.
+  private static final int KEY_VOLUME_UP = 0;
+  private static final int KEY_VOLUME_DOWN = 0;
+
+  // Temporary diagnostics: show raw keyCode/keyName of unknown keys on screen.
+  // Set to false once the volume key codes are captured.
+  private static final boolean KEY_DEBUG = true;
+
   static final int VOLUME_ALERT_MARGIN = 20;
   static final int VOLUME_ALERT_HEIGHT = 100;
   static final int VOLUME_BAR_INSET = 20;
@@ -97,6 +106,8 @@ public final class PlayerScreen extends Canvas
   volatile int textHeight = 10;
   boolean isLandscape, isLargeScreen;
   boolean volumeAlertShowing;
+  String keyDebugText;
+  private int keyDebugTicks;
   final StatusBar statusBar = new StatusBar();
   Font titleFont, artistFont, defaultFont;
   int statusBarHeight, albumSize = 72, albumX = 8, albumY;
@@ -252,6 +263,13 @@ public final class PlayerScreen extends Canvas
   }
 
   void onRepaintTick() {
+    if (keyDebugTicks > 0) {
+      keyDebugTicks--;
+      if (keyDebugTicks <= 0) {
+        keyDebugText = null;
+        updateDisplay();
+      }
+    }
     updateNavCommands();
     if (displayWidth <= 0 || displayHeight <= 0 || !layoutValid) {
       updateDisplayAsync();
@@ -296,6 +314,13 @@ public final class PlayerScreen extends Canvas
 
   protected void keyPressed(int keycode) {
     try {
+      int volumeDirection = volumeKeyDirection(keycode);
+      if (volumeDirection != 0) {
+        getPlayerGUI().adjustVolume(volumeDirection > 0);
+        showKeyDebug(keycode);
+        return;
+      }
+
       int action = getGameAction(keycode);
 
       if (!volumeAlertShowing && (action == Canvas.LEFT || action == Canvas.RIGHT)) {
@@ -320,6 +345,11 @@ public final class PlayerScreen extends Canvas
 
   protected void keyRepeated(int keycode) {
     try {
+      int volumeDirection = volumeKeyDirection(keycode);
+      if (volumeDirection != 0) {
+        getPlayerGUI().adjustVolume(volumeDirection > 0);
+        return;
+      }
       if (heldKey == keycode
           && !volumeAlertShowing
           && (heldAction == Canvas.LEFT || heldAction == Canvas.RIGHT)) {
@@ -395,7 +425,67 @@ public final class PlayerScreen extends Canvas
       case KEY_MEDIA_NEXT:
         next();
         break;
+      default:
+        showKeyDebug(code);
     }
+  }
+
+  /**
+   * Returns 1 for volume up, -1 for volume down, 0 if this is not a volume key.
+   *
+   * <p>The side volume rocker is not a MIDP key (no game action). Devices either deliver it as a
+   * raw key code with a device-specific name, or not at all. Known codes are checked first, then
+   * the key name reported by {@link #getKeyName(int)} ("Volume up", "Vol+", ...).
+   */
+  private int volumeKeyDirection(int keycode) {
+    if (KEY_VOLUME_UP != 0 && keycode == KEY_VOLUME_UP) {
+      return 1;
+    }
+    if (KEY_VOLUME_DOWN != 0 && keycode == KEY_VOLUME_DOWN) {
+      return -1;
+    }
+    String name;
+    try {
+      name = getKeyName(keycode);
+    } catch (Throwable e) {
+      return 0;
+    }
+    if (name == null) {
+      return 0;
+    }
+    name = name.toLowerCase();
+    if (name.indexOf("volume") < 0 && name.indexOf("vol") < 0) {
+      return 0;
+    }
+    if (name.indexOf("down") >= 0
+        || name.indexOf("low") >= 0
+        || name.indexOf("dec") >= 0
+        || name.indexOf("-") >= 0) {
+      return -1;
+    }
+    if (name.indexOf("up") >= 0
+        || name.indexOf("high") >= 0
+        || name.indexOf("inc") >= 0
+        || name.indexOf("+") >= 0) {
+      return 1;
+    }
+    return 0;
+  }
+
+  /** Temporary: show the raw code/name of an unknown key for a few seconds (KEY_DEBUG builds). */
+  private void showKeyDebug(int keycode) {
+    if (!KEY_DEBUG) {
+      return;
+    }
+    String name;
+    try {
+      name = getKeyName(keycode);
+    } catch (Throwable e) {
+      name = "?";
+    }
+    keyDebugText = "key " + keycode + " \"" + name + "\"";
+    keyDebugTicks = 6;
+    updateDisplay();
   }
 
   protected void pointerPressed(int x, int y) {
