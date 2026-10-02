@@ -30,9 +30,11 @@ DIST_DIR="dist"
 VERSION="1.7.1"
 
 # ProGuard (and only ProGuard) runs on any modern JDK.
-RUN_JAVA="${RUN_JAVA:-$(command -v java)}"
+RUN_JAVA="${RUN_JAVA:-$(command -v java || true)}"
 PROGUARD_JAR="lib/proguard-ant.jar"
-BOOTCP="lib/cldc_1.1.jar:lib/midp_2.0.jar:lib/jsr234_1.0.jar"   # J2ME core APIs + JSR-234 (AMMS, compile-time only)
+# Absolute paths: on Windows (Git Bash/MSYS) only absolute POSIX path lists are
+# auto-converted to Windows form for javac; relative ones break the bootclasspath.
+BOOTCP="$SCRIPT_DIR/lib/cldc_1.1.jar:$SCRIPT_DIR/lib/midp_2.0.jar:$SCRIPT_DIR/lib/jsr234_1.0.jar"   # J2ME core APIs + JSR-234 (AMMS, compile-time only)
 
 # ---------------------------------------------------------------------------
 # Locate JDK 8.
@@ -47,6 +49,9 @@ find_jdk8() {
   fi
   local cand
   for cand in \
+      "/c/Program Files/Eclipse Adoptium"/* \
+      "/c/Program Files/Java"/* \
+      "$LOCALAPPDATA/Programs/Eclipse Adoptium"/* \
       /Library/Java/JavaVirtualMachines/*/Contents/Home \
       /opt/homebrew/opt/openjdk@8/libexec/openjdk.jdk/Contents/Home \
       /opt/homebrew/Cellar/temurin@8/*/libexec/openjdk.jdk/Contents/Home \
@@ -63,7 +68,11 @@ if [ -z "$JDK8" ]; then
   cat >&2 <<EOF
 ✗ JDK 8 not found. It is required for a standard J2ME build (see header).
 
-Install it, then re-run. On macOS:
+Install it, then re-run. On Windows:
+
+    winget install EclipseAdoptium.Temurin.8.JDK
+
+or on macOS:
 
     brew install --cask temurin@8
 
@@ -80,6 +89,9 @@ fi
 JAVAC="$JDK8/bin/javac"
 JAR_TOOL="$JDK8/bin/jar"
 echo "• JDK 8 : $JDK8 ($("$JAVAC" -version 2>&1))"
+
+# No `java` on PATH (e.g. fresh Windows box): run ProGuard with the JDK 8 JVM.
+if [ -z "$RUN_JAVA" ]; then RUN_JAVA="$JDK8/bin/java"; fi
 
 if [ ! -f "$PROGUARD_JAR" ]; then
   echo "✗ ProGuard not found at $PROGUARD_JAR" >&2; exit 1
