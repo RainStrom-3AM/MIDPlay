@@ -32,7 +32,7 @@ public final class PlayerScreen extends Canvas
 
   // Temporary diagnostics: show raw keyCode/keyName of unknown keys on screen.
   // Set to false once the volume key codes are captured.
-  private static final boolean KEY_DEBUG = true;
+  private static final boolean KEY_DEBUG = false;
 
   static final int VOLUME_ALERT_MARGIN = 20;
   static final int VOLUME_ALERT_HEIGHT = 100;
